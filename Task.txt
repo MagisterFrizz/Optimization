@@ -1,3 +1,0 @@
-Write a program that implements the simplex method. Pay attention that you are not allowed to
-use build in functions. You should write an algorithm that can solve LPP using Simplex method.
-You can find this algorithm in lecture slides or any book related to ”Linear Programming”.
