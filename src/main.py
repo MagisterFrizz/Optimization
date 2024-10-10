@@ -159,25 +159,25 @@ C_arr = []
 A_arr = []
 d_arr = []
 
-with open("input_data.txt", "r") as input:
-    line = input.readline()
+with open("input_data.txt", "r") as inputf:
+    line = inputf.readline()
 
     while True:
-        line = input.readline()
+        line = inputf.readline()
         if line == "A:\n":
             break
         C_arr.append(-int(line))
         Ccounter += 1
 
     while True:
-        line = input.readline()
+        line = inputf.readline()
         if line == "d:\n":
             break
         A_arr.append([int(i) for i in line.split()])
         Acounter += 1
 
     for i in range(Acounter):
-        line = input.readline()
+        line = inputf.readline()
         d_arr.append(int(line))
 
     d = Matrix(1, Acounter)
@@ -192,4 +192,5 @@ with open("input_data.txt", "r") as input:
     d = transpose(d)
 
     simplex(C, A, d, 3, log=0)
-    
+
+end = input("Press Enter to leave\n")
