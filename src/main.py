@@ -109,38 +109,48 @@ def simplex(C: Matrix, A: Matrix, d: Matrix, accuracy=1, log=0):
     for i in range(Acounter):
         Sim.setRow(i + 1, PreSim.getRow(i))
 
-    while Sim.hasNeg(0):
+    counter = 0
+    while Sim.hasNeg(0) and counter <= Ccounter:
+        counter += 1
         index = Sim.findMin(0)
+        if index == -1:
+            print("The method is not applicable!")
+            return ...
         rat_ind = Sim.checkRatio(index)
+        if rat_ind == -1:
+            print("The method is not applicable!")
+            return ...
 
         Sim.mulRow(rat_ind, 1/Sim.data[rat_ind][index])
 
         if log == 1:
-            cat(Sim, accuracy)
+            cat(Sim, accuracy=accuracy)
             print()
 
         for i in range(Acounter + 1):
             if i != rat_ind:
                 Sim.elum(i, rat_ind, null=index)
                 if log == 1:
-                    cat(Sim, accuracy)
+                    cat(Sim, accuracy=accuracy)
                     print()
 
+    if counter > Ccounter:
+        print("The method is not applicable!")
+    else:
+        ans = Sim.getCol(-1)
+        x_arr = [0 for i in range(Ccounter)]
 
-    ans = Sim.getCol(-1)
-    x_arr = [0 for i in range(Ccounter)]
+        for i in range(Ccounter):
+            col = Sim.getCol(i)
+            if sum(col) == 1:
+                x_arr[i] = ans[col.index(1)]
+                
+        print("x*:", end=" ")
+        for i in x_arr:
+            print(round(i, accuracy), end=" ")
 
-    for i in range(Ccounter):
-        col = Sim.getCol(i)
-        if sum(col) == 1:
-            x_arr[i] = ans[col.index(1)]
-            
-    print("x*:", end=" ")
-    for i in x_arr:
-        print(round(i, accuracy), end=" ")
-
-    print()
-    print(f"z: {round(ans[0], accuracy)}")
+        print()
+        print(f"z: {round(ans[0], accuracy)}")
 
 Ccounter = 0
 Acounter = 0
@@ -181,6 +191,5 @@ with open("input_data.txt", "r") as input:
     d.setRow(0, d_arr)
     d = transpose(d)
 
-    simplex(C, A, d, 3)
+    simplex(C, A, d, 3, log=0)
     
-
