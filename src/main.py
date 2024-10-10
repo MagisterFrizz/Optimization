@@ -15,6 +15,12 @@ class Matrix:
         self.r = r
         self.c = c
 
+    def getData(self) -> list:
+        return self.data
+    
+    def setData(self, data: list) -> None:
+        self.data = data
+
     def getRow(self, r) -> list:
         return self.data[r]
     
@@ -68,11 +74,11 @@ class Matrix:
         return minInd
 
 
-def cat(Matrix1: Matrix, Matrix2: Matrix =None):
+def cat(Matrix1: Matrix, Matrix2: Matrix =None, accuracy=2):
         if Matrix2 == None:
             for i in range(Matrix1.r):
                 for j in Matrix1.data[i]:
-                    print(round(j, 2), end=" ")
+                    print(round(j, accuracy), end=" ")
                 print()
             return
         else:
@@ -86,6 +92,55 @@ def transpose(Matrix1: Matrix) -> Matrix:
         for i in range(Matrix1.c):
             new_Matrix.setRow(i, Matrix1.getCol(i))
         return new_Matrix
+
+def simplex(C: Matrix, A: Matrix, d: Matrix, accuracy=1, log=0):
+    Identity = Matrix(Acounter, Acounter, iden=1)
+
+    PreSim = cat(cat(A, Identity), d)
+    
+    C_arr = C.getData()[0]
+
+    for i in range(Acounter + 1):
+        C_arr.append(0)
+
+    Sim = Matrix(1 + Acounter, Ccounter + Acounter + 1)
+    Sim.setRow(0, C_arr)
+
+    for i in range(Acounter):
+        Sim.setRow(i + 1, PreSim.getRow(i))
+
+    while Sim.hasNeg(0):
+        index = Sim.findMin(0)
+        rat_ind = Sim.checkRatio(index)
+
+        Sim.mulRow(rat_ind, 1/Sim.data[rat_ind][index])
+
+        if log == 1:
+            cat(Sim, accuracy)
+            print()
+
+        for i in range(Acounter + 1):
+            if i != rat_ind:
+                Sim.elum(i, rat_ind, null=index)
+                if log == 1:
+                    cat(Sim, accuracy)
+                    print()
+
+
+    ans = Sim.getCol(-1)
+    x_arr = [0 for i in range(Ccounter)]
+
+    for i in range(Ccounter):
+        col = Sim.getCol(i)
+        if sum(col) == 1:
+            x_arr[i] = ans[col.index(1)]
+            
+    print("x*:", end=" ")
+    for i in x_arr:
+        print(round(i, accuracy), end=" ")
+
+    print()
+    print(f"z: {round(ans[0], accuracy)}")
 
 Ccounter = 0
 Acounter = 0
@@ -117,7 +172,8 @@ with open("input_data.txt", "r") as input:
 
     d = Matrix(1, Acounter)
     A = Matrix(Acounter, Ccounter)
-    Identity = Matrix(Acounter, Acounter, iden=1)
+    C = Matrix(1, Ccounter)
+    C.setRow(0, C_arr)
 
     for i in range(Acounter):
         A.setRow(i, A_arr[i])
@@ -125,44 +181,6 @@ with open("input_data.txt", "r") as input:
     d.setRow(0, d_arr)
     d = transpose(d)
 
-    PreSim = cat(cat(A, Identity), d)
+    simplex(C, A, d, 3)
     
-    for i in range(Acounter + 1):
-        C_arr.append(0)
-
-    Sim = Matrix(1 + Acounter, Ccounter + Acounter + 1)
-    Sim.setRow(0, C_arr)
-
-    for i in range(Acounter):
-        Sim.setRow(i + 1, PreSim.getRow(i))
-
-    while Sim.hasNeg(0):
-        index = Sim.findMin(0)
-        rat_ind = Sim.checkRatio(index)
-
-        Sim.mulRow(rat_ind, 1/Sim.data[rat_ind][index])
-
-        cat(Sim)
-        print()
-
-        for i in range(Acounter + 1):
-            if i != rat_ind:
-                Sim.elum(i, rat_ind, null=index)
-                cat(Sim)
-                print()
-
-    ans = Sim.getCol(-1)
-    x_arr = [0 for i in range(Ccounter)]
-
-    for i in range(Ccounter):
-        col = Sim.getCol(i)
-        if sum(col) == 1:
-            x_arr[i] = ans[col.index(1)]
-            
-    print("x*:", end=" ")
-    for i in x_arr:
-        print(round(i, 2), end=" ")
-
-    print()
-    print(f"z: {round(ans[0], 2)}")
 
