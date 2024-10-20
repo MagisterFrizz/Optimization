@@ -8,7 +8,7 @@ git clone https://github.com/MagisterFrizz/Optimization.git
 ```bash
 cd Optimization
 ```
-### Launch the program
+### Launch the assignment by it`s number
 ```bash
-python ./prog1/src/main.py
+python ./prog{number_off_assignment}/src/main.py
 ```
