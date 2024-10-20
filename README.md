@@ -10,5 +10,5 @@ cd Optimization
 ```
 ### Launch the program
 ```bash
-python ./src/main.py
+python ./prog1/src/main.py
 ```

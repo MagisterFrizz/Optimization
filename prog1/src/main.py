@@ -159,7 +159,7 @@ C_arr = []
 A_arr = []
 d_arr = []
 
-with open("input_data.txt", "r") as inputf:
+with open("./prog1/input_data.txt", "r") as inputf:
     line = inputf.readline()
 
     while True:
