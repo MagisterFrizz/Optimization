@@ -46,7 +46,7 @@ def IPA(A, c, x_0, alpha=0.5, e=1e-04):
     print(f"\nVector x = {np.round(x, 2)}")
     return np.dot(c, x)
 
-print("For alpha(0.5):", round(IPA(A, c, x_0, 0.5), 2))
-print("For alpha(0.9):", round(IPA(A, c, x_0, 0.9), 2))
+print("For alpha(0.5):", round(IPA(A, c, x_0, 0.5), 5))
+print("For alpha(0.9):", round(IPA(A, c, x_0, 0.9), 5))
 print("Answer of Simplex:")
 preprocess_and_simplex()
