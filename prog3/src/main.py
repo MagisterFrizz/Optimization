@@ -19,7 +19,7 @@ class Matrix:
             new_data.append(self.get_col[i])
         self.data = new_data
 
-def transposed(matrix: Matrix):
+def transposed(matrix: Matrix) -> Matrix:
     new_matrix = Matrix(matrix.col, matrix.row)
     new_data = []
     for i in range(matrix.col):
