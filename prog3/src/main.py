@@ -76,7 +76,7 @@ class Table:
         amounnt_diff = demand - supply
 
         if amounnt_diff < 0:
-            paid -= amounnt_diff * cost
+            paid -= -amounnt_diff * cost
             self.demand.set(col, 0)
             self.supply.set(row, -amounnt_diff)
             self.final_cost += paid
@@ -117,9 +117,33 @@ costs = Matrix(3, 5, costs_data)
 table = Table(supply, demand, costs)
 
 table_nw = Table(supply, demand, costs)
+
+#Test of fullfill
+table_nw.display()
+print(table_nw.final_cost)
 table_nw.fullfill(0, 0)
 table_nw.display()
-# Correct answer for North-West algorithm: 3230
+print(table_nw.final_cost)
+table_nw.fullfill(0, 1)
+table_nw.display()
+print(table_nw.final_cost)
+table_nw.fullfill(0, 2)
+table_nw.display()
+print(table_nw.final_cost)
+table_nw.fullfill(1, 2)
+table_nw.display()
+print(table_nw.final_cost)
+table_nw.fullfill(1, 3)
+table_nw.display()
+print(table_nw.final_cost)
+table_nw.fullfill(2, 3)
+table_nw.display()
+print(table_nw.final_cost)
+table_nw.fullfill(2, 4)
+table_nw.display()
+print(table_nw.final_cost)
+
+# Correct answer for North-West algorithm: 1380
 
 # print("Answer done by North-West algorithm:")
 # table_nw.north_west()
