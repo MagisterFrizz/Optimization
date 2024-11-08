@@ -67,4 +67,21 @@ costs = Matrix(3, 5, costs_data)
 
 table = Table(supply, demand, costs)
 
+# Correct answer for North-West algorithm: 3230
+
+# print("Answer done by North-West algorithm:")
+# table.north_west()
+
+
+# Correct answer for Vogel's algorithm: 1330
+
+# print("Answer done by Vogel's algorithm:")
+# table.vogel()
+
+
+# Correct answer for Russel's algorithm: idk
+
+# print("Answer done by Russel's algorithm:")
+# table.russel()
+
 table.display()
