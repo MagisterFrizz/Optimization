@@ -32,7 +32,7 @@ class Matrix:
         new_matrix = Matrix(self.row, self.col, self.data.copy())
         return new_matrix
 
-    # Helpful methods for Vogel
+    # Helpful methods for Vogel and Russel
 
     def get_minimum_difference(self, geom: int, index: int):
         """
@@ -65,7 +65,16 @@ class Matrix:
             col = min(self.get_col(index))
             index2 = self.get_col(index).index(col)
             return [index2, index]
-
+            
+    def get_maximum(self, geom: int, index: int):
+        if geom == 0:
+            row = max(self.get_row(index))
+            index2 = self.get_row(index).index(row)
+            return [index, index2]
+        else:
+            col = max(self.get_col(index))
+            index2 = self.get_col(index).index(col)
+            return [index2, index]
 
 class Vector(Matrix):
     def __init__(self, row: int, col: int, data=[]):
@@ -147,7 +156,7 @@ class Table:
             except:
                 break
         
-        print(self.final_cost)
+        print("Final Cost:", self.final_cost)
     
     def vogel(self):
         for _ in range(self.costs.row + self.costs.col - 1):
@@ -160,7 +169,7 @@ class Table:
             for j in range(table.costs.col):
                 differences_col.append(self.costs.get_minimum_difference(1, j))
 
-            print("Differences(row/col):", differences_row, differences_col)
+            # print("Differences(row/col):", differences_row, differences_col)
 
             if max(differences_col) < max(differences_row):
                 index = self.costs.get_minimum(0, differences_row.index(max(differences_row)))
@@ -169,10 +178,10 @@ class Table:
                 index = self.costs.get_minimum(1, differences_col.index(max(differences_col)))
                 self.fullfill(index[0], index[1], True)
 
-            print("Chosen index:", index)
-            self.display()
+            # print("Chosen index:", index)
+            # self.display()
 
-            print("Current Cost:", self.final_cost, "\n")
+            # print("Current Cost:", self.final_cost, "\n")
 
         print("Final Cost:", self.final_cost)
     
