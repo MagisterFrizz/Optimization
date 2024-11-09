@@ -149,8 +149,32 @@ class Table:
         
         print(self.final_cost)
     
-    def vogel():
-        return ...
+    def vogel(self):
+        for _ in range(self.costs.row + self.costs.col - 1):
+            differences_row = []
+            differences_col = []
+            
+            for i in range(self.costs.row):
+                differences_row.append(self.costs.get_minimum_difference(0, i))
+
+            for j in range(table.costs.col):
+                differences_col.append(self.costs.get_minimum_difference(1, j))
+
+            print("Differences(row/col):", differences_row, differences_col)
+
+            if max(differences_col) < max(differences_row):
+                index = self.costs.get_minimum(0, differences_row.index(max(differences_row)))
+                self.fullfill(index[0], index[1], True)
+            else:
+                index = self.costs.get_minimum(1, differences_col.index(max(differences_col)))
+                self.fullfill(index[0], index[1], True)
+
+            print("Chosen index:", index)
+            self.display()
+
+            print("Current Cost:", self.final_cost, "\n")
+
+        print("Final Cost:", self.final_cost)
     
     def russel():
         return ...
@@ -179,37 +203,10 @@ table_nw = Table(supply, demand, costs)
 table_v = Table(supply, demand, costs)
 
 table_v.display()
-
-for _ in range(table_v.costs.row + table_v.costs.col - 1):
-    differences_row = []
-    differences_col = []
-    
-    for i in range(table_v.costs.row):
-        differences_row.append(table_v.costs.get_minimum_difference(0, i))
-
-    for j in range(table.costs.col):
-        differences_col.append(table_v.costs.get_minimum_difference(1, j))
-
-    print("Differences(row/col):", differences_row, differences_col)
-
-    if max(differences_col) < max(differences_row):
-        index = table_v.costs.get_minimum(0, differences_row.index(max(differences_row)))
-        table_v.fullfill(index[0], index[1], True)
-    else:
-        index = table_v.costs.get_minimum(1, differences_col.index(max(differences_col)))
-        table_v.fullfill(index[0], index[1], True)
-
-    print("Chosen index:", index)
-    table_v.display()
-
-    print("Current Cost:", table_v.final_cost, "\n")
-
-print("Final Cost:", table_v.final_cost)
-
 # Correct answer for Vogel's algorithm: 1260
 
-# print("Answer done by Vogel's algorithm:")
-# table_v.vogel()
+print("Answer done by Vogel's algorithm:")
+table_v.vogel()
 
 table_r = Table(supply, demand, costs)
 # Correct answer for Russel's algorithm: idk
