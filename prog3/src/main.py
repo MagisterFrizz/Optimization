@@ -219,6 +219,12 @@ class Table:
         """
         Implementation of North-West algorithm
         """
+
+        if sum(self.supply.get_col(0)) != sum(self.demand.get_row(0)):
+            print("The problem is not balanced!")
+            input()
+            exit(0)
+
         i, j = 0, 0
     
         while True:
@@ -235,12 +241,18 @@ class Table:
                 break
         
         print("Final Cost:", self.final_cost)
-        print("Points used (row, col, amount):", self.points[:-1])
+        print("Points used (row, col, amount):", self.points)
     
     def vogel(self):
         """
         Implementation of Vogel's algorithm
         """
+
+        if sum(self.supply.get_col(0)) != sum(self.demand.get_row(0)):
+            print("The problem is not balanced!")
+            input()
+            exit(0)
+
         for _ in range(self.costs.row + self.costs.col - 1):
             differences_row = []
             differences_col = []
@@ -272,6 +284,12 @@ class Table:
         """
         Implementation of Russel's algorithm
         """
+
+        if sum(self.supply.get_col(0)) != sum(self.demand.get_row(0)):
+            print("The problem is not balanced!")
+            input()
+            exit(0)
+
         taboo_rows = []
         taboo_cols = []
 
@@ -302,16 +320,16 @@ class Table:
 
 
 # For Testing
-supply_data = [[200, 120, 150]]
+supply_data = [[140, 160, 120]]
 supply = Vector(1, 3, supply_data)
 supply.transpose()
 
-demand_data = [[120, 220, 90, 40]]
+demand_data = [[110, 150, 80, 80]]
 demand = Vector(1, 4, demand_data)
 
-costs_data = [[70, 55, 60, 40], 
-              [45, 30, 20, 50], 
-              [30, 1000, 15, 25]]
+costs_data = [[55, 30, 45, 25], 
+              [65, 40, 35, 20], 
+              [30, 60, 50, 40]]
 costs = Matrix(3, 4, costs_data)
 
 table = Table(supply, demand, costs)
