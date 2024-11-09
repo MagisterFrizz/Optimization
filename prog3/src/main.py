@@ -100,16 +100,25 @@ class Matrix:
             index2 = self.get_col(index).index(col)
             return [index2, index]
         
-    def get_max_cell_in_row(self, index: int):
-        maximum_value = max(self.get_row(index))
-        return index, self.get_row(index).index(maximum_value), maximum_value
+    def get_russel_number(self, row: int, col: int, taboo_rows: list, taboo_cols: list):
+        """
+        Returns cost of cell - max cost in row - max cost in col
+        (For Russel's algorithm implementation)
+        """
+        chosen_row = self.get_row(row)
+        for taboo_col in taboo_cols:
+            chosen_row[taboo_col] = 0
 
-    def get_max_cell_in_col(self, index: int):
-        maximum_value = max(self.get_col(index))
-        return self.get_col(index).index(maximum_value), index, maximum_value
+        chosen_col = self.get_col(col)
+        for taboo_row in taboo_rows:
+            chosen_col[taboo_row] = 0
 
-    def compute_delta_for_cells(self, cell: list, max_row: int, max_col: int):
-        return self.get_row(cell[0]).index(cell[1]) - max_row - max_col
+        row_maxima = max(chosen_row)
+        col_maxima = max(chosen_col)
+
+        cell_cost = self.get(row, col)
+        return cell_cost - row_maxima - col_maxima
+    
 
 class Vector(Matrix):
     def __init__(self, row: int, col: int, data=[]):
@@ -148,8 +157,9 @@ class Table:
         self.demand = demand
         self.costs = costs
         self.final_cost = 0
+        self.points = []
 
-    def fullfill(self, row: int, col: int, setinf: bool=False) -> int:
+    def fullfill(self, row: int, col: int, setval: int=-1) -> int:
         """
         This method tries to transport as most supply as it can by using
         cost at cell (i, j)
@@ -159,28 +169,40 @@ class Table:
 
         cost = self.costs.get(row, col)
 
-        if setinf:
-            self.costs.set(row, col, math.inf)
+        if setval != -1:
+            self.costs.set(row, col, setval)
 
         paid = cost * supply
         amounnt_diff = demand - supply
+
+        self.points.append([row, col, min([demand, supply])])
 
         if amounnt_diff < 0:
             paid -= -amounnt_diff * cost
             self.demand.set(col, 0)
             self.supply.set(row, -amounnt_diff)
             self.final_cost += paid
-            if setinf:
+
+            if setval != -1:
                 for i in range(self.costs.row):
-                    self.costs.set(i, col, math.inf)
+                    self.costs.set(i, col, setval)
             return amounnt_diff
-        else:
+        elif amounnt_diff > 0:
             self.demand.set(col, amounnt_diff)
             self.supply.set(row, 0)
             self.final_cost += paid
-            if setinf:
+            if setval != -1:
                 for i in range(self.costs.col):
-                    self.costs.set(row, i, math.inf)
+                    self.costs.set(row, i, setval)
+            return amounnt_diff
+        else:
+            self.demand.set(col, 0)
+            self.supply.set(row, 0)
+            if setval != -1:
+                for i in range(self.costs.col):
+                    self.costs.set(row, i, setval)
+                for i in range(self.costs.row):
+                    self.costs.set(i, col, setval)
             return amounnt_diff
 
     def display(self) -> None:
@@ -213,6 +235,7 @@ class Table:
                 break
         
         print("Final Cost:", self.final_cost)
+        print("Points used (row, col, amount):", self.points[:-1])
     
     def vogel(self):
         """
@@ -232,10 +255,10 @@ class Table:
 
             if max(differences_col) < max(differences_row):
                 index = self.costs.get_minimum(0, differences_row.index(max(differences_row)))
-                self.fullfill(index[0], index[1], True)
+                self.fullfill(index[0], index[1], math.inf)
             else:
                 index = self.costs.get_minimum(1, differences_col.index(max(differences_col)))
-                self.fullfill(index[0], index[1], True)
+                self.fullfill(index[0], index[1], math.inf)
 
             # print("Chosen index:", index)
             # self.display()
@@ -243,66 +266,53 @@ class Table:
             # print("Current Cost:", self.final_cost, "\n")
 
         print("Final Cost:", self.final_cost)
+        print("Points used (row, col, amount):", self.points)
     
     def russel(self):
         """
         Implementation of Russel's algorithm
         """
-        maximum_row_values_arr = []
-        maximum_col_values_arr = []
+        taboo_rows = []
+        taboo_cols = []
 
-        visited_cells = set()
-        delta_matrix = [[0 for i in range(len(self.demand.data[0]))] for j in range(len(self.supply.data))]
+        for _ in range(self.costs.row + self.costs.col - 1):
+            minimal_rn = math.inf
+            minimal_ri = [0, 0]
 
-        for i in range(len(self.supply.data)):
-            max_cell = self.costs.get_max_cell_in_row(i)
-            maximum_row_values_arr.append(max_cell[2])
-            visited_cells.add((max_cell[0], max_cell[1]))
+            for row in range(self.costs.row):
+                for col in range(self.costs.col):
+                    if row not in taboo_rows and col not in taboo_cols:
+                        russel_number = self.costs.get_russel_number(row, col, taboo_rows, taboo_cols)
+                        if minimal_rn > russel_number:
+                            minimal_rn = russel_number
+                            minimal_ri = [row, col]
+            
+            var = self.fullfill(minimal_ri[0], minimal_ri[1])
 
-        for i in range(len(self.demand.data[0])):
-            max_cell = self.costs.get_max_cell_in_col(i)
-            maximum_col_values_arr.append(max_cell[2])
-            visited_cells.add((max_cell[0], max_cell[1]))
-
-        for i in range(len(self.supply.data)):
-            for j in range(len(self.demand.data[0])):
-                if (i, j) not in visited_cells:
-                    delta = self.costs.get_row(i)[j] - maximum_row_values_arr[i] - maximum_col_values_arr[j]
-                    delta_matrix[i][j] = delta
-                    
-        while True:
-            min_value = 0
-            min_index = (0,0)
-            for i in range(len(self.supply.data)):
-                for j in range(len(self.demand.data[0])):
-                    if delta_matrix[i][j] < min_value:
-                        min_value = delta_matrix[i][j]
-                        min_index = (i,j)
-            if min_value == 0:
-                break
+            if var < 0:
+                taboo_cols.append(minimal_ri[1])
+            elif var > 0:
+                taboo_rows.append(minimal_ri[0])
             else:
-                self.fullfill(min_index[0], min_index[1])
-                if self.supply.data[min_index[0]][0] == 0:
-                    for i in range(len(self.demand.data[0])):
-                        delta_matrix[min_index[0]][i] = 0
-                if self.demand.data[0][min_index[1]] == 0:
-                    for i in range(len(self.supply.data)):
-                        delta_matrix[i][min_index[1]] = 0
+                taboo_cols.append(minimal_ri[1])
+                taboo_rows.append(minimal_ri[0])
 
         print("Final Cost:", self.final_cost)
-    
+        print("Points used (row, col, amount):", self.points)
+
+
 # For Testing
-supply_data = [[140, 180, 160]]
+supply_data = [[200, 120, 150]]
 supply = Vector(1, 3, supply_data)
 supply.transpose()
 
-demand_data = [[60, 70, 120, 130, 100]]
-demand = Vector(1, 5, demand_data)
+demand_data = [[120, 220, 90, 40]]
+demand = Vector(1, 4, demand_data)
 
-costs_data = [[2, 3, 4, 2, 4], 
-              [8, 4, 1, 4, 1], 
-              [9, 7, 3, 7, 2]]
-costs = Matrix(3, 5, costs_data)
+costs_data = [[70, 55, 60, 40], 
+              [45, 30, 20, 50], 
+              [30, 1000, 15, 25]]
+costs = Matrix(3, 4, costs_data)
 
 table = Table(supply, demand, costs)
 
