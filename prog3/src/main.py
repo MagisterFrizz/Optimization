@@ -1,3 +1,5 @@
+import math
+
 class Matrix:
     def __init__(self, row: int, col: int, data=[]):
         self.row = row
@@ -23,6 +25,9 @@ class Matrix:
     def get(self, row: int, col: int) -> int:
         return self.data[row][col]
     
+    def set(self, row: int, col: int, val: int) -> None:
+        self.data[row][col] = val
+
     def copy(self):
         new_matrix = Matrix(self.row, self.col, self.data.copy())
         return new_matrix
@@ -30,12 +35,37 @@ class Matrix:
     # Helpful methods for Vogel
 
     def get_minimum_difference(self, geom: int, index: int):
+        """
+        This method returns the value of difference between two smallest elements in row/column
+        geom: 0 for row, 1 for column
+        """
         if geom == 0:
-            row = self.get_row(index).sort()
-            return row[1] - row[0]
+            row = sorted(self.get_row(index))
+            if row[0] == math.inf:
+                return -math.inf
+            elif row[1] == math.inf:
+                return 0
+            else:
+                return row[1] - row[0]
         else:
-            col = self.get_col(index).sort()
-            return col[1] - col[0]
+            col = sorted(self.get_col(index))
+            if col[0] == math.inf:
+                return -math.inf
+            elif col[1] == math.inf:
+                return 0
+            else:
+                return col[1] - col[0]
+    
+    def get_minimum(self, geom: int, index: int):
+        if geom == 0:
+            row = min(self.get_row(index))
+            index2 = self.get_row(index).index(row)
+            return [index, index2]
+        else:
+            col = min(self.get_col(index))
+            index2 = self.get_col(index).index(col)
+            return [index2, index]
+
 
 class Vector(Matrix):
     def __init__(self, row: int, col: int, data=[]):
@@ -66,11 +96,14 @@ class Table:
         self.costs = costs
         self.final_cost = 0
 
-    def fullfill(self, row: int, col: int) -> int:
+    def fullfill(self, row: int, col: int, setinf: bool=False) -> int:
         supply = self.supply.get(row)
         demand = self.demand.get(col)
 
         cost = self.costs.get(row, col)
+
+        if setinf:
+            self.costs.set(row, col, math.inf)
 
         paid = cost * supply
         amounnt_diff = demand - supply
@@ -80,11 +113,17 @@ class Table:
             self.demand.set(col, 0)
             self.supply.set(row, -amounnt_diff)
             self.final_cost += paid
+            if setinf:
+                for i in range(self.costs.row):
+                    self.costs.set(i, col, math.inf)
             return amounnt_diff
         else:
             self.demand.set(col, amounnt_diff)
             self.supply.set(row, 0)
             self.final_cost += paid
+            if setinf:
+                for i in range(self.costs.col):
+                    self.costs.set(row, i, math.inf)
             return amounnt_diff
 
     def display(self) -> None:
@@ -132,14 +171,42 @@ costs = Matrix(3, 5, costs_data)
 table = Table(supply, demand, costs)
 
 table_nw = Table(supply, demand, costs)
-
 # Correct answer for North-West algorithm: 1380
 
-print("Answer done by North-West algorithm:")
-table_nw.north_west()
+# print("Answer done by North-West algorithm:")
+# table_nw.north_west()
 
 table_v = Table(supply, demand, costs)
-# Correct answer for Vogel's algorithm: 1330
+
+table_v.display()
+
+for _ in range(table_v.costs.row + table_v.costs.col - 1):
+    differences_row = []
+    differences_col = []
+    
+    for i in range(table_v.costs.row):
+        differences_row.append(table_v.costs.get_minimum_difference(0, i))
+
+    for j in range(table.costs.col):
+        differences_col.append(table_v.costs.get_minimum_difference(1, j))
+
+    print("Differences(row/col):", differences_row, differences_col)
+
+    if max(differences_col) < max(differences_row):
+        index = table_v.costs.get_minimum(0, differences_row.index(max(differences_row)))
+        table_v.fullfill(index[0], index[1], True)
+    else:
+        index = table_v.costs.get_minimum(1, differences_col.index(max(differences_col)))
+        table_v.fullfill(index[0], index[1], True)
+
+    print("Chosen index:", index)
+    table_v.display()
+
+    print("Current Cost:", table_v.final_cost, "\n")
+
+print("Final Cost:", table_v.final_cost)
+
+# Correct answer for Vogel's algorithm: 1260
 
 # print("Answer done by Vogel's algorithm:")
 # table_v.vogel()
