@@ -80,7 +80,7 @@ class Table:
             self.demand.set(col, 0)
             self.supply.set(row, -amounnt_diff)
             self.final_cost += paid
-            return -amounnt_diff
+            return amounnt_diff
         else:
             self.demand.set(col, amounnt_diff)
             self.supply.set(row, 0)
@@ -92,8 +92,23 @@ class Table:
             print(self.costs.get_row(i) + self.supply.get_row(i))
         print(self.demand.get_row(0))
 
-    def north_west():
-        return ...
+    def north_west(self) -> None:
+        i, j = 0, 0
+    
+        while True:
+            try:
+                diff = self.fullfill(i, j)
+                if diff < 0:
+                    j += 1
+                elif diff == 0:
+                    i += 1
+                    j += 1
+                else:
+                    i += 1
+            except:
+                break
+        
+        print(self.final_cost)
     
     def vogel():
         return ...
@@ -118,35 +133,10 @@ table = Table(supply, demand, costs)
 
 table_nw = Table(supply, demand, costs)
 
-#Test of fullfill
-table_nw.display()
-print(table_nw.final_cost)
-table_nw.fullfill(0, 0)
-table_nw.display()
-print(table_nw.final_cost)
-table_nw.fullfill(0, 1)
-table_nw.display()
-print(table_nw.final_cost)
-table_nw.fullfill(0, 2)
-table_nw.display()
-print(table_nw.final_cost)
-table_nw.fullfill(1, 2)
-table_nw.display()
-print(table_nw.final_cost)
-table_nw.fullfill(1, 3)
-table_nw.display()
-print(table_nw.final_cost)
-table_nw.fullfill(2, 3)
-table_nw.display()
-print(table_nw.final_cost)
-table_nw.fullfill(2, 4)
-table_nw.display()
-print(table_nw.final_cost)
-
 # Correct answer for North-West algorithm: 1380
 
-# print("Answer done by North-West algorithm:")
-# table_nw.north_west()
+print("Answer done by North-West algorithm:")
+table_nw.north_west()
 
 table_v = Table(supply, demand, costs)
 # Correct answer for Vogel's algorithm: 1330
