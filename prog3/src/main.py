@@ -332,21 +332,7 @@ costs_data = [[55, 30, 45, 25],
               [30, 60, 50, 40]]
 costs = Matrix(3, 4, costs_data)
 
-# supply_data = [[7, 10, 16]]
-# supply = Vector(1, 3, supply_data)
-# supply.transpose()
-
-# demand_data = [[6, 10, 7, 12]]
-# demand = Vector(1, 4, demand_data)
-
-# costs_data = [[19, 30, 51, 10], 
-#               [70, 31, 35, 55], 
-#               [41, 10, 70, 21]]
-# costs = Matrix(3, 4, costs_data)
-
-
 table = Table(supply, demand, costs)
-
 
 
 table.display()
