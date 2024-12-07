@@ -2,10 +2,7 @@ from math import sqrt
 
 
 class Solver:
-    def __init__(self, func):
-        self.func = func
-
-    def bisection_method(self, a: float, b: float, tolerance: float) -> float:
+    def bisection_method(self, f, a: float, b: float, tolerance: float) -> float:
         """
         How does the choice of [a,b] affect convergence?
         To "bracket" root first condition is to have opposite signs for func(a) and func(b)
@@ -17,16 +14,16 @@ class Solver:
         and the method might fail to detect one.
         """
 
-        func = self.func
+        print("Bisection Method:")
 
-        if func(a) == 0:
-            print(f"Root is: {a}")
-            return a
-        elif func(b) == 0:
-            print(f"Root is: {b}")
-            return b
+        if f(a) == 0 or f(b) == 0:
+            if f(a) == 0:
+                print(f"Root is: {a}")
+            if f(b) == 0:
+                print(f"Root is: {b}")
+            return
 
-        if func(a) * func(b) >= 0:
+        if f(a) * f(b) >= 0:
             print("The function must have opposite signs at a and b to bracket a root.")
             return None
 
@@ -34,14 +31,14 @@ class Solver:
         print("Starting Bisection Method...")
         while (b - a) / 2 > tolerance:
             c = (a + b) / 2
-            print(f"Iteration {iteration}: a = {a:.6f}, b = {b:.6f}, c = {c:.6f}, func(c) = {func(c):.6e}")
+            print(f"Iteration {iteration}: a = {a:.6f}, b = {b:.6f}, c = {c:.6f}, func(c) = {f(c):.6e}")
 
             # Check if the midpoint is a root
-            if abs(func(c)) < tolerance:
+            if abs(f(c)) < tolerance:
                 print(f"Root found at c = {c} (tolerance reached).")
                 return c
 
-            if func(a) * func(c) < 0:
+            if f(a) * f(c) < 0:
                 b = c
             else:
                 a = c
@@ -52,7 +49,8 @@ class Solver:
         print(f"Approximate root after {iteration} iterations: c = {c}")
         return c
 
-    def golden_section_method(self, a: float, b: float, type: int = 1, e: float = 1e-6) -> tuple[float, float]:
+    def golden_section_method(self, f, a: float, b: float, type: int = 1, e: float = 1e-6, 
+                              log: bool = True) -> tuple[float, float]:
         """
         ### Input and output
         Takes the interval [a, b] for some function and returns maxima and maximum (if type is 1)\n
@@ -61,9 +59,10 @@ class Solver:
         The golden section method proposes is to save computations by reusing 
         the discarded value in the immediately succeeding iteration.
         """
+        if log:
+            print("Golden Section Method:")
 
-        # Define function and borders of given interval [a, b]
-        func = self.func
+        # Define borders of given interval [a, b]
         x_l, x_r = a, b
 
         # Iteration 0
@@ -71,9 +70,9 @@ class Solver:
         x2 = x_l + (sqrt(5) - 1) / 2 * (x_r - x_l)
 
         # Change of interval's borders
-        if type * func(x1) > type * func(x2):
+        if type * f(x1) > type * f(x2):
             x_r = x2
-        elif type * func(x1) < type * func(x2):
+        elif type * f(x1) < type * f(x2):
             x_l = x1
         else: 
             x_l, x_r = x1, x2
@@ -84,10 +83,10 @@ class Solver:
         while x_r - x_l > e:
 
             # Use of unused value
-            if type * func(x1) > type * func(x2):
+            if type * f(x1) > type * f(x2):
                 x2 = x1
                 x1 = x_r - (sqrt(5) - 1) / 2 * (x_r - x_l)
-            elif type * func(x1) < type * func(x2):
+            elif type * f(x1) < type * f(x2):
                 x1 = x2
                 x2 = x_l + (sqrt(5) - 1) / 2 * (x_r - x_l)
             else:
@@ -95,9 +94,9 @@ class Solver:
                 x2 = x_l + (sqrt(5) - 1) / 2 * (x_r - x_l)
 
             # Change of interval's borders
-            if type * func(x1) > type * func(x2):
+            if type * f(x1) > type * f(x2):
                 x_r = x2
-            elif type * func(x1) < type * func(x2):
+            elif type * f(x1) < type * f(x2):
                 x_l = x1
             else: 
                 x_l, x_r = x1, x2
@@ -105,14 +104,55 @@ class Solver:
             i += 1
 
         # Console output
-        if type > 0:
-            print(f"Maximum: {(x_l + x_r) / 2:.5f},\nMaxima: {func((x_l + x_r) / 2):.5f}")
-        else:
-            print(f"Minimum: {(x_l + x_r) / 2:.5f},\nMinima: {func((x_l + x_r) / 2):.5f}")
+        if log:
+            if type > 0:
+                print(f"Maximum: {(x_l + x_r) / 2:.5f},\nMaxima: {f((x_l + x_r) / 2):.5f}\n")
+            else:
+                print(f"Minimum: {(x_l + x_r) / 2:.5f},\nMinima: {f((x_l + x_r) / 2):.5f}\n")
 
         # Return of x and f(x)
-        return x_l, func(x_l)
+        return x_l, f(x_l)
             
+    def gradient_ascent_method(self, f, df, x0: float, e: float = 1e-4,
+                                log: bool = True) -> tuple[float, float]:
+        """
+        ### Input and output
+        Takes the function, it's derivative and initial point x0 and returns optima and optimum of the function.\n
+        ### Idea of the method
+        Gradient ascent generates successive points in the direction of the gradient of the function.
+        """
+        if log:
+            print("Gradient Ascent Method:")
+
+        x = x0
+
+        # Iteration 1
+        def h(r):
+            return f(x + r * df(x))
+
+        # Find optimal coeficient r for gradient ascent
+        r_opt, _ = self.golden_section_method(h, -100, 100, log=False)
+        x_new = x + r_opt * df(x)
+
+        # Next iterations
+        while abs(x - x_new) > e:
+
+            def h(r):
+                return f(x_new + r * df(x_new))
+            
+            x = x_new
+
+            # Find optimal coeficient r for gradient ascent
+            r_opt, _ = self.golden_section_method(h, -100, 100, log=False)
+            x_new = x + r_opt * df(x)
+        
+        if log:
+            print(f"Optimum: {x:.5f},\nOptima: {f(x):.5f}\n")
+
+        return x, f(x)
+
+def f1(x):
+    return x**3 - 6*x**2 + 11*x - 6
 
 def f2(x):
     return (x - 2)**2 + 3
@@ -120,5 +160,13 @@ def f2(x):
 def f3(x):
     return -x**2 + 4*x + 1
 
-solver = Solver(f2)
-x, y = solver.golden_section_method(0, 5, -1, 1e-5)
+def df3(x):
+    return -2*x + 4
+
+solver = Solver()
+
+root = solver.bisection_method(f1, 1, 2, 1e-6)
+
+x, y = solver.golden_section_method(f2, 0, 5, -1, 1e-5)
+
+x, y = solver.gradient_ascent_method(f3, df3, 0)
