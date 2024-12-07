@@ -165,8 +165,11 @@ def df3(x):
 
 solver = Solver()
 
+# Test of bisection method
 root = solver.bisection_method(f1, 1, 2, 1e-6)
 
+# Test of golden section method
 x, y = solver.golden_section_method(f2, 0, 5, -1, 1e-5)
 
+# Test of gradient ascent method
 x, y = solver.gradient_ascent_method(f3, df3, 0)
